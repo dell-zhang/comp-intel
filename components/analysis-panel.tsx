@@ -139,9 +139,19 @@ const SECTION_LABELS: Record<SectionKey, string> = {
   insights: "Strategic Insights & Recommendations",
 };
 
-function SectionSkeleton({ label }: { label: string }) {
+const DELAY_CLASSES = ["", "delay-1", "delay-2", "delay-3"];
+
+function SectionSkeleton({
+  label,
+  delay = 0,
+}: {
+  label: string;
+  delay?: number;
+}) {
   return (
-    <div className="fade-up rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div
+      className={`fade-up ${DELAY_CLASSES[delay] ?? ""} rounded-xl border border-slate-200 bg-white p-6 shadow-sm`}
+    >
       <h3 className="mb-4 text-lg font-semibold text-slate-400">{label}</h3>
       <div className="space-y-3">
         <Skeleton className="h-4 w-full" />
@@ -271,7 +281,11 @@ export function AnalysisPanel({
 
   const renderedKeys = new Set(sections.map((s) => s.key));
 
-  if (!text && !isLoading) return null;
+  if (!text) return null;
+
+  // Only show skeletons once text has started streaming (report phase),
+  // not during the tool-calling phase when the progress stepper provides feedback
+  const showSkeletons = isLoading && sections.length > 0;
 
   return (
     <div className="mt-10 space-y-6">
@@ -279,9 +293,9 @@ export function AnalysisPanel({
         <div key={section.key}>{renderSection(section)}</div>
       ))}
 
-      {isLoading &&
-        SECTION_ORDER.filter((key) => !renderedKeys.has(key)).map((key) => (
-          <SectionSkeleton key={key} label={SECTION_LABELS[key]} />
+      {showSkeletons &&
+        SECTION_ORDER.filter((key) => !renderedKeys.has(key)).map((key, i) => (
+          <SectionSkeleton key={key} label={SECTION_LABELS[key]} delay={i} />
         ))}
     </div>
   );

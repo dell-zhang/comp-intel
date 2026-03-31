@@ -94,11 +94,23 @@
 }
 
 @utility fade-up {
-  animation: fade-up 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: fade-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @utility fade-in {
-  animation: fade-in 0.2s ease both;
+  animation: fade-in 0.25s ease both;
+}
+
+@utility delay-1 {
+  animation-delay: 75ms;
+}
+
+@utility delay-2 {
+  animation-delay: 150ms;
+}
+
+@utility delay-3 {
+  animation-delay: 225ms;
 }
 
 .skeleton {

@@ -1,9 +1,9 @@
-import { streamText, stepCountIs } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
+import { stepCountIs, streamText } from "ai";
 import {
-  searchCompetitors,
   getCompanyProfile,
   getFinancialData,
+  searchCompetitors,
   searchNews,
 } from "@/lib/tools";
 
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
       },
     });
 
-    return result.toTextStreamResponse();
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error("Analyze API error:", error);
     const message =
