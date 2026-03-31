@@ -1,18 +1,29 @@
 "use client";
 
+import { ArrowRight, Loader2, Search } from "lucide-react";
 import { useState } from "react";
-import { Search, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const examples = ["Coca-Cola", "Tesla", "Nike", "Apple", "Samsung"];
 
-export function SearchBar() {
+interface SearchBarProps {
+  onAnalyze: (brandName: string) => void;
+  isLoading: boolean;
+}
+
+export function SearchBar({ onAnalyze, isLoading }: SearchBarProps) {
   const [query, setQuery] = useState("");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!query.trim()) return;
-    // TODO: Wire to /api/analyze in Step 3
+    const name = query.trim();
+    if (!name || isLoading) return;
+    onAnalyze(name);
+  }
+
+  function handleExample(name: string) {
+    setQuery(name);
+    if (!isLoading) onAnalyze(name);
   }
 
   return (
@@ -24,15 +35,25 @@ export function SearchBar() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Enter a brand name..."
-          className="h-14 w-full rounded-xl border border-slate-200 bg-white pr-36 pl-12 text-lg shadow-sm outline-none transition-shadow placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
+          disabled={isLoading}
+          className="h-14 w-full rounded-xl border border-slate-200 bg-white pr-36 pl-12 text-lg shadow-sm outline-none transition-shadow placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 disabled:opacity-60"
         />
         <Button
           type="submit"
-          disabled={!query.trim()}
+          disabled={!query.trim() || isLoading}
           className="absolute top-1/2 right-2 -translate-y-1/2 gap-2 rounded-lg bg-indigo-600 px-5 text-white hover:bg-indigo-700 disabled:opacity-40"
         >
-          Analyze
-          <ArrowRight className="size-4" />
+          {isLoading ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Analyzing
+            </>
+          ) : (
+            <>
+              Analyze
+              <ArrowRight className="size-4" />
+            </>
+          )}
         </Button>
       </form>
 
@@ -42,8 +63,9 @@ export function SearchBar() {
           <button
             key={name}
             type="button"
-            onClick={() => setQuery(name)}
-            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 shadow-sm transition-colors hover:border-indigo-300 hover:bg-indigo-50"
+            onClick={() => handleExample(name)}
+            disabled={isLoading}
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 shadow-sm transition-colors hover:border-indigo-300 hover:bg-indigo-50 disabled:opacity-50"
           >
             {name}
           </button>
