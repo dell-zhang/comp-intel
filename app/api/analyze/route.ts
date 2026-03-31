@@ -38,7 +38,9 @@ For each news item include: headline, source, sentiment (positive/negative/neutr
 ## Strategic insights and recommendations
 3-5 actionable strategic recommendations based on the analysis.
 
-Important: Use ALL available tools before writing your report. Do not hallucinate financial data — if a tool returns no data for a company, say so. Base your analysis on the actual data gathered.`;
+Important: Use ALL available tools before writing your report. Do not hallucinate financial data — if a tool returns no data for a company, say so. Base your analysis on the actual data gathered.
+
+If the brand name is unrecognised, misspelt, or too vague to research, still attempt a search. If tools return no meaningful results, produce a short report explaining that the brand could not be identified and suggest the user try a more specific name.`;
 
 export const maxDuration = 60;
 
@@ -53,6 +55,14 @@ export async function POST(req: Request) {
       });
     }
 
+    const trimmed = brandName.trim();
+    if (trimmed.length < 2 || trimmed.length > 100) {
+      return new Response(
+        JSON.stringify({ error: "Brand name must be between 2 and 100 characters." }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
     const result = streamText({
       model: anthropic("claude-sonnet-4-6"),
       system: SYSTEM_PROMPT,
@@ -60,7 +70,7 @@ export async function POST(req: Request) {
       messages: [
         {
           role: "user",
-          content: `Analyse the competitive landscape for: ${brandName}`,
+          content: `Analyse the competitive landscape for: ${trimmed}`,
         },
       ],
       tools: {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
+import { ChevronDown, Info } from "lucide-react";
 import { AnalysisPanel } from "@/components/analysis-panel";
 import { ProgressStepper } from "@/components/progress-stepper";
 import { SearchBar } from "@/components/search-bar";
@@ -27,7 +28,9 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [toolsCalled, setToolsCalled] = useState<Set<string>>(new Set());
+  const [howOpen, setHowOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const resultsRef = useRef<HTMLDivElement | null>(null);
 
   const currentStep = useMemo(
     () => computeStep(toolsCalled, text.length > 0, isLoading),
@@ -43,6 +46,11 @@ export default function Home() {
     setError(null);
     setIsLoading(true);
     setToolsCalled(new Set());
+
+    // Scroll to the results area after a short delay so the stepper is visible
+    requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
 
     try {
       const res = await fetch("/api/analyze", {
@@ -122,6 +130,7 @@ export default function Home() {
     setError(null);
     setIsLoading(false);
     setToolsCalled(new Set());
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   const showStepper = isLoading || toolsCalled.size > 0;
@@ -140,19 +149,68 @@ export default function Home() {
 
       <SearchBar onAnalyze={handleAnalyze} isLoading={isLoading} />
 
+      {/* How it works */}
+      <div className="w-full max-w-2xl">
+        <button
+          type="button"
+          onClick={() => setHowOpen((o) => !o)}
+          className="mx-auto flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-700"
+        >
+          <Info className="size-3.5" />
+          How it works
+          <ChevronDown
+            className={`size-3.5 transition-transform ${howOpen ? "rotate-180" : ""}`}
+          />
+        </button>
+        {howOpen && (
+          <div className="fade-up mt-3 rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-600">
+            <p className="mb-3 font-medium text-slate-900">
+              CompIntel uses an AI agent that autonomously researches your brand:
+            </p>
+            <ol className="space-y-1.5 pl-5 list-decimal marker:text-indigo-500">
+              <li>
+                <span className="font-medium text-slate-700">Discovers</span>{" "}
+                competitors via web search
+              </li>
+              <li>
+                <span className="font-medium text-slate-700">Gathers</span>{" "}
+                financial data and company profiles from multiple APIs
+              </li>
+              <li>
+                <span className="font-medium text-slate-700">Analyzes</span>{" "}
+                recent news and sentiment
+              </li>
+              <li>
+                <span className="font-medium text-slate-700">Generates</span>{" "}
+                a structured intelligence report, streamed in real time
+              </li>
+            </ol>
+            <p className="mt-3 text-xs text-slate-400">
+              Powered by Claude AI with tool use — no pre-built templates, every
+              analysis is researched from scratch.
+            </p>
+          </div>
+        )}
+      </div>
+
       {error && (
-        <div className="w-full max-w-2xl rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="fade-up w-full max-w-2xl rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           <p className="font-medium">Analysis failed</p>
           <p className="mt-1">{error}</p>
+          <p className="mt-2 text-xs text-red-500">
+            Try a well-known brand name, or check your connection and try again.
+          </p>
         </div>
       )}
 
-      {showStepper && (
-        <ProgressStepper
-          currentStep={currentStep}
-          isComplete={!isLoading && text.length > 0}
-        />
-      )}
+      <div ref={resultsRef}>
+        {showStepper && (
+          <ProgressStepper
+            currentStep={currentStep}
+            isComplete={!isLoading && text.length > 0}
+          />
+        )}
+      </div>
 
       <div className="w-full">
         <AnalysisPanel text={text} isLoading={isLoading} />
