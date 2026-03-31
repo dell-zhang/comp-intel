@@ -1,19 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
-
+import { Geist } from "next/font/google";
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://chat.vercel.ai"),
-  title: "Next.js Chatbot Template",
-  description: "Next.js chatbot template using the AI SDK.",
-};
-
-export const viewport = {
-  maximumScale: 1,
+  title: "CompIntel — AI-Powered Competitive Intelligence",
+  description:
+    "Enter a brand name and receive a streamed, multi-section competitive analysis powered by Claude AI.",
 };
 
 const geist = Geist({
@@ -22,64 +14,33 @@ const geist = Geist({
   variable: "--font-geist",
 });
 
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-geist-mono",
-});
-
-const LIGHT_THEME_COLOR = "hsl(0 0% 100%)";
-const DARK_THEME_COLOR = "hsl(240deg 10% 3.92%)";
-const THEME_COLOR_SCRIPT = `\
-(function() {
-  var html = document.documentElement;
-  var meta = document.querySelector('meta[name="theme-color"]');
-  if (!meta) {
-    meta = document.createElement('meta');
-    meta.setAttribute('name', 'theme-color');
-    document.head.appendChild(meta);
-  }
-  function updateThemeColor() {
-    var isDark = html.classList.contains('dark');
-    meta.setAttribute('content', isDark ? '${DARK_THEME_COLOR}' : '${LIGHT_THEME_COLOR}');
-  }
-  var observer = new MutationObserver(updateThemeColor);
-  observer.observe(html, { attributes: true, attributeFilter: ['class'] });
-  updateThemeColor();
-})();`;
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      className={`${geist.variable} ${geistMono.variable}`}
-      lang="en"
-      suppressHydrationWarning
-    >
-      <head>
-        <script
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: "Required"
-          dangerouslySetInnerHTML={{
-            __html: THEME_COLOR_SCRIPT,
-          }}
-        />
-      </head>
-      <body className="antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          disableTransitionOnChange
-          enableSystem
-        >
-          <SessionProvider
-            basePath={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/auth`}
-          >
-            <TooltipProvider>{children}</TooltipProvider>
-          </SessionProvider>
-        </ThemeProvider>
+    <html className={geist.variable} lang="en">
+      <body className="min-h-screen bg-[#f8fafc] font-sans antialiased">
+        <header className="bg-gradient-to-r from-[#0f172a] to-[#1e293b] text-white">
+          <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+            <div>
+              <h1 className="text-xl font-bold tracking-tight">CompIntel</h1>
+              <p className="text-sm text-slate-400">
+                AI-powered competitive intelligence in seconds
+              </p>
+            </div>
+          </div>
+        </header>
+
+        <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>
+
+        <footer className="border-t border-slate-200 bg-white">
+          <div className="mx-auto max-w-5xl px-6 py-6 text-center text-sm text-slate-500">
+            Powered by Claude AI &middot; Data from Tavily, Alpha Vantage,
+            NewsAPI
+          </div>
+        </footer>
       </body>
     </html>
   );
