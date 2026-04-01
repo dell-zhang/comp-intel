@@ -205,35 +205,38 @@ export const searchNews = {
     const tavilyKey = process.env.TAVILY_API_KEY;
     if (!tavilyKey) return { error: "No news API available" };
 
-    const res = await fetch("https://api.tavily.com/search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        api_key: tavilyKey,
-        query: `${query} latest news`,
-        topic: "news",
-        max_results: Math.min(pageSize, 10),
-        include_answer: false,
-      }),
-      signal: AbortSignal.timeout(15000),
-    });
-
-    if (!res.ok) {
-      return { error: `News search error: ${res.status}` };
-    }
-
-    const data = await res.json();
-    return {
-      totalResults: (data.results ?? []).length,
-      articles: (data.results ?? []).map(
-        (r: { title: string; url: string; content: string; published_date?: string }) => ({
-          title: r.title,
-          source: new URL(r.url).hostname.replace("www.", ""),
-          description: r.content,
-          url: r.url,
-          publishedAt: r.published_date ?? null,
+    try {
+      const res = await fetch("https://api.tavily.com/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          api_key: tavilyKey,
+          query: `${query} recent news developments`,
+          max_results: Math.min(pageSize, 10),
+          include_answer: true,
         }),
-      ),
-    };
+        signal: AbortSignal.timeout(15000),
+      });
+
+      if (!res.ok) {
+        return { error: `News search error: ${res.status}` };
+      }
+
+      const data = await res.json();
+      return {
+        totalResults: (data.results ?? []).length,
+        articles: (data.results ?? []).map(
+          (r: { title: string; url: string; content: string; published_date?: string }) => ({
+            title: r.title,
+            source: new URL(r.url).hostname.replace("www.", ""),
+            description: r.content,
+            url: r.url,
+            publishedAt: r.published_date ?? null,
+          }),
+        ),
+      };
+    } catch {
+      return { error: "News search unavailable. Please try again later." };
+    }
   },
 };
