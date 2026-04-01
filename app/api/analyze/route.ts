@@ -9,9 +9,9 @@ import {
 
 const SYSTEM_PROMPT = `You are a competitive intelligence analyst. When given a brand name, you will:
 
-1. DISCOVER: Use searchCompetitors to identify the brand's top 3-5 direct competitors.
-2. RESEARCH: For the input brand AND each competitor, use getFinancialData and getCompanyProfile to gather key metrics and background.
-3. NEWS: Use searchNews for the input brand and top 2 competitors to find recent developments.
+1. DISCOVER: Use searchCompetitors to identify the brand's top 3-6 direct competitors.
+2. RESEARCH: For the input brand AND each competitor, use getFinancialData and getCompanyProfile to gather key metrics and background. IMPORTANT: Call multiple tools in parallel whenever possible to save time — for example, call getFinancialData and getCompanyProfile for different companies simultaneously in a single step.
+3. NEWS: Use searchNews for the input brand and top 2 competitors. Call all news searches in parallel.
 4. ANALYSE AND REPORT: Synthesise all gathered data into a structured report with these exact sections, each marked with a markdown heading:
 
 ## Competitive landscape overview
@@ -42,7 +42,7 @@ Important: Use ALL available tools before writing your report. Do not hallucinat
 
 If the brand name is unrecognised, misspelt, or too vague to research, still attempt a search. If tools return no meaningful results, produce a short report explaining that the brand could not be identified and suggest the user try a more specific name.`;
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
   try {

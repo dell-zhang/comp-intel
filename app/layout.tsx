@@ -25,7 +25,7 @@ export default function RootLayout({
         <header className="bg-gradient-to-r from-[#0f172a] to-[#1e293b] text-white">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
             <div>
-              <h1 className="text-xl font-bold tracking-tight">CompIntel</h1>
+              <h1 className="text-xl font-bold tracking-tight">CompIntel (by Dell Zhang and Claude Code)</h1>
               <p className="text-sm text-slate-400">
                 AI-powered competitive intelligence in seconds
               </p>

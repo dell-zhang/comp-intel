@@ -23,6 +23,7 @@ export const searchCompetitors = {
         max_results: 8,
         include_answer: true,
       }),
+      signal: AbortSignal.timeout(15000),
     });
 
     if (!res.ok) {
@@ -66,6 +67,7 @@ export const getCompanyProfile = {
         max_results: 5,
         include_answer: true,
       }),
+      signal: AbortSignal.timeout(15000),
     });
 
     if (!res.ok) {
@@ -99,7 +101,7 @@ export const getFinancialData = {
     if (!apiKey) return { error: "ALPHA_VANTAGE_API_KEY not configured" };
 
     const url = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${encodeURIComponent(symbol)}&apikey=${apiKey}`;
-    const res = await fetch(url);
+    const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
 
     if (!res.ok) {
       return { error: `Alpha Vantage API error: ${res.status}` };
@@ -167,6 +169,7 @@ export const searchNews = {
 
     const res = await fetch(
       `https://newsapi.org/v2/everything?${params.toString()}`,
+      { signal: AbortSignal.timeout(15000) },
     );
 
     if (!res.ok) {
