@@ -152,51 +152,86 @@ export const searchNews = {
     query,
     pageSize = 5,
   }: { query: string; pageSize?: number }) => {
-    const apiKey = process.env.NEWS_API_KEY;
-    if (!apiKey) return { error: "NEWS_API_KEY not configured" };
+    // Try NewsAPI first (works locally, free tier blocks non-localhost in production)
+    const newsApiKey = process.env.NEWS_API_KEY;
+    if (newsApiKey) {
+      try {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const from = thirtyDaysAgo.toISOString().split("T")[0];
 
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const from = thirtyDaysAgo.toISOString().split("T")[0];
+        const params = new URLSearchParams({
+          q: query,
+          from,
+          sortBy: "publishedAt",
+          pageSize: String(Math.min(pageSize, 10)),
+          apiKey: newsApiKey,
+        });
 
-    const params = new URLSearchParams({
-      q: query,
-      from,
-      sortBy: "publishedAt",
-      pageSize: String(Math.min(pageSize, 10)),
-      apiKey,
+        const res = await fetch(
+          `https://newsapi.org/v2/everything?${params.toString()}`,
+          { signal: AbortSignal.timeout(15000) },
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === "ok") {
+            return {
+              totalResults: data.totalResults,
+              articles: (data.articles ?? []).map(
+                (a: {
+                  title: string;
+                  source: { name: string };
+                  description: string;
+                  url: string;
+                  publishedAt: string;
+                }) => ({
+                  title: a.title,
+                  source: a.source?.name,
+                  description: a.description,
+                  url: a.url,
+                  publishedAt: a.publishedAt,
+                }),
+              ),
+            };
+          }
+        }
+      } catch {
+        // Fall through to Tavily
+      }
+    }
+
+    // Fallback: use Tavily to search for recent news
+    const tavilyKey = process.env.TAVILY_API_KEY;
+    if (!tavilyKey) return { error: "No news API available" };
+
+    const res = await fetch("https://api.tavily.com/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        api_key: tavilyKey,
+        query: `${query} latest news`,
+        topic: "news",
+        max_results: Math.min(pageSize, 10),
+        include_answer: false,
+      }),
+      signal: AbortSignal.timeout(15000),
     });
 
-    const res = await fetch(
-      `https://newsapi.org/v2/everything?${params.toString()}`,
-      { signal: AbortSignal.timeout(15000) },
-    );
-
     if (!res.ok) {
-      return { error: `NewsAPI error: ${res.status}` };
+      return { error: `News search error: ${res.status}` };
     }
 
     const data = await res.json();
-
-    if (data.status !== "ok") {
-      return { error: data.message ?? "NewsAPI returned an error." };
-    }
-
     return {
-      totalResults: data.totalResults,
-      articles: (data.articles ?? []).map(
-        (a: {
-          title: string;
-          source: { name: string };
-          description: string;
-          url: string;
-          publishedAt: string;
-        }) => ({
-          title: a.title,
-          source: a.source?.name,
-          description: a.description,
-          url: a.url,
-          publishedAt: a.publishedAt,
+      totalResults: (data.results ?? []).length,
+      articles: (data.results ?? []).map(
+        (r: { title: string; url: string; content: string; published_date?: string }) => ({
+          title: r.title,
+          source: new URL(r.url).hostname.replace("www.", ""),
+          description: r.content,
+          url: r.url,
+          publishedAt: r.published_date ?? null,
         }),
       ),
     };
