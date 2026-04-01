@@ -7,7 +7,7 @@ export const searchCompetitors = {
     query: z
       .string()
       .describe(
-        'Search query, e.g. "Coca-Cola main competitors market share"',
+        'Search query, e.g. "JPMorganChase main competitors market share"',
       ),
   }),
   execute: async ({ query }: { query: string }) => {
@@ -94,7 +94,7 @@ export const getFinancialData = {
   inputSchema: z.object({
     symbol: z
       .string()
-      .describe('Stock ticker symbol, e.g. "KO" for Coca-Cola, "TSLA" for Tesla'),
+      .describe('Stock ticker symbol, e.g. "JPM" for JPMorganChase, "TSLA" for Tesla'),
   }),
   execute: async ({ symbol }: { symbol: string }) => {
     const apiKey = process.env.ALPHA_VANTAGE_API_KEY;
@@ -141,7 +141,7 @@ export const searchNews = {
   description:
     "Search for recent news articles about a company or brand from the past 30 days. Returns headlines, sources, and publication dates.",
   inputSchema: z.object({
-    query: z.string().describe('News search query, e.g. "Coca-Cola"'),
+    query: z.string().describe('News search query, e.g. "JPMorganChase"'),
     pageSize: z
       .number()
       .optional()

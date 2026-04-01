@@ -4,7 +4,7 @@ import { ArrowRight, Loader2, Search } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const examples = ["Coca-Cola", "Tesla", "Nike", "Apple", "Samsung"];
+const examples = ["JPMorganChase", "Tesla", "Nike", "Apple", "Samsung"];
 
 interface SearchBarProps {
   onAnalyze: (brandName: string) => void;
