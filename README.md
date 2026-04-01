@@ -1,71 +1,66 @@
-<a href="https://chat.vercel.ai/">
-  <img alt="Chatbot" src="app/(chat)/opengraph-image.png">
-  <h1 align="center">Chatbot</h1>
-</a>
+# CompIntel
 
-<p align="center">
-    Chatbot (formerly AI Chatbot) is a free, open-source template built with Next.js and the AI SDK that helps you quickly build powerful chatbot applications.
-</p>
+AI-powered competitive intelligence in seconds. Enter a brand name and receive a streamed, multi-section competitive analysis — powered by an AI agent that autonomously researches, analyzes, and reports in real time.
 
-<p align="center">
-  <a href="https://chatbot.dev"><strong>Read Docs</strong></a> ·
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#model-providers"><strong>Model Providers</strong></a> ·
-  <a href="#deploy-your-own"><strong>Deploy Your Own</strong></a> ·
-  <a href="#running-locally"><strong>Running locally</strong></a>
-</p>
-<br/>
+**Live demo:** Deployed on [Vercel](https://vercel.com)
 
-## Features
+## How it works
 
-- [Next.js](https://nextjs.org) App Router
-  - Advanced routing for seamless navigation and performance
-  - React Server Components (RSCs) and Server Actions for server-side rendering and increased performance
-- [AI SDK](https://ai-sdk.dev/docs/introduction)
-  - Unified API for generating text, structured objects, and tool calls with LLMs
-  - Hooks for building dynamic chat and generative user interfaces
-  - Supports OpenAI, Anthropic, Google, xAI, and other model providers via AI Gateway
-- [shadcn/ui](https://ui.shadcn.com)
-  - Styling with [Tailwind CSS](https://tailwindcss.com)
-  - Component primitives from [Radix UI](https://radix-ui.com) for accessibility and flexibility
-- Data Persistence
-  - [Neon Serverless Postgres](https://vercel.com/marketplace/neon) for saving chat history and user data
-  - [Vercel Blob](https://vercel.com/storage/blob) for efficient file storage
-- [Auth.js](https://authjs.dev)
-  - Simple and secure authentication
+CompIntel uses Claude (via the Vercel AI SDK) as an autonomous agent with tool use. When you enter a brand name, the agent:
 
-## Model Providers
+1. **Discovers** competitors via web search (Tavily)
+2. **Gathers** financial data (Alpha Vantage) and company profiles (Tavily)
+3. **Analyzes** recent news and sentiment (NewsAPI)
+4. **Generates** a structured intelligence report, streamed in real time
 
-This template uses the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway) to access multiple AI models through a unified interface. Models are configured in `lib/ai/models.ts` with per-model provider routing. Included models: Mistral, Moonshot, DeepSeek, OpenAI, and xAI.
+The report includes a competitive landscape overview, competitor profile cards, a market share chart, SWOT analysis grid, news feed with sentiment badges, and strategic recommendations.
 
-### AI Gateway Authentication
+## Tech stack
 
-**For Vercel deployments**: Authentication is handled automatically via OIDC tokens.
-
-**For non-Vercel deployments**: You need to provide an AI Gateway API key by setting the `AI_GATEWAY_API_KEY` environment variable in your `.env.local` file.
-
-With the [AI SDK](https://ai-sdk.dev/docs/introduction), you can also switch to direct LLM providers like [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com/), and [many more](https://ai-sdk.dev/providers/ai-sdk-providers) with just a few lines of code.
-
-## Deploy Your Own
-
-You can deploy your own version of Chatbot to Vercel with one click:
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/templates/next.js/chatbot)
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS + shadcn/ui |
+| AI | Vercel AI SDK + Claude Sonnet |
+| Charts | Recharts |
+| Data: Web search | Tavily API |
+| Data: Financials | Alpha Vantage API |
+| Data: News | NewsAPI.org |
+| Hosting | Vercel |
 
 ## Running locally
 
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Chatbot. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
+1. Clone the repository:
 
-> Note: You should not commit your `.env` file or it will expose secrets that will allow others to control access to your various AI and authentication provider accounts.
+```bash
+git clone https://github.com/dell-zhang/comp-intel.git
+cd comp-intel
+```
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Link local instance with Vercel and GitHub accounts (creates `.vercel` directory): `vercel link`
-3. Download your environment variables: `vercel env pull`
+2. Install dependencies:
 
 ```bash
 pnpm install
-pnpm db:migrate # Setup database or apply latest database changes
+```
+
+3. Create a `.env.local` file with your API keys:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+TAVILY_API_KEY=tvly-...
+ALPHA_VANTAGE_API_KEY=...
+NEWS_API_KEY=...
+```
+
+4. Start the development server:
+
+```bash
 pnpm dev
 ```
 
-Your app template should now be running on [localhost:3000](http://localhost:3000).
+The app will be running at [localhost:3000](http://localhost:3000).
+
+## Acknowledgements
+
+Built by **Dell Zhang** with the help of [Claude Code](https://claude.ai/claude-code). Bootstrapped from the [Vercel AI Chatbot](https://github.com/vercel/chatbot) template.
