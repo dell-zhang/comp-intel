@@ -211,7 +211,7 @@ export const searchNews = {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           api_key: tavilyKey,
-          query: `${query} recent news developments`,
+          query: `${query} latest updates`,
           max_results: Math.min(pageSize, 10),
           include_answer: true,
         }),
